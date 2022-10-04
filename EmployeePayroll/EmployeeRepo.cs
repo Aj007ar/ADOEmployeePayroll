@@ -59,5 +59,49 @@ namespace EmployeePayroll
                 throw new Exception(e.Message);
             }
         }
+
+        public bool AddEmployee(EmployeePayroll employee)
+        {
+            try
+            {
+                using (this.connection)
+                {
+
+                    SqlCommand storedProcedure = new SqlCommand("Addmplopyee", this.connection);
+                    storedProcedure.CommandType = CommandType.StoredProcedure;
+
+
+                    storedProcedure.Parameters.AddWithValue("@name", employee.EmployeeName);
+                    storedProcedure.Parameters.AddWithValue("@basicpay", employee.BasicPay);
+                    storedProcedure.Parameters.AddWithValue("@startdate", employee.StartDate);
+                    storedProcedure.Parameters.AddWithValue("@gender", employee.Gender);
+                    storedProcedure.Parameters.AddWithValue("@contact", employee.Contact);
+                    storedProcedure.Parameters.AddWithValue("@city", employee.City);
+                    storedProcedure.Parameters.AddWithValue("@state", employee.States);
+                    storedProcedure.Parameters.AddWithValue("@zip", employee.Zip);
+                    storedProcedure.Parameters.AddWithValue("@deductions", employee.Deductions);
+                    storedProcedure.Parameters.AddWithValue("@taxpercent", employee.TaxPercent);
+
+                    connection.Open();
+                    var result = storedProcedure.ExecuteNonQuery();
+                    connection.Close();
+
+                    if (result != 0)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return false;
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
     }
 }

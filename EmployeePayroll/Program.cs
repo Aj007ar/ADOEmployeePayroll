@@ -7,6 +7,7 @@
             Console.WriteLine("Welcome to employee Payroll");
             EmployeeRepo repo = new EmployeeRepo();
             repo.GetAllEmployee();
+            
         }
     }
 }
