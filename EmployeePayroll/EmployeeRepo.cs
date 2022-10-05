@@ -103,5 +103,46 @@ namespace EmployeePayroll
                 connection.Close();
             }
         }
+        public int UpdateEmployee()
+        {
+            EmployeePayroll emp = new EmployeePayroll();
+            emp.EmployeeName = "john";
+            emp.BasicPay = 300000;
+            emp.StartDate = "2022-05-01";
+            emp.City = "bangalore";
+            emp.Contact = "9876543210";
+            emp.Deductions = 5000;
+            try
+            {
+                using (connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    SqlCommand sqlCommand = new SqlCommand("GetCompleteDetails", connection);
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    sqlCommand.Parameters.AddWithValue("@Name", emp.EmployeeName);
+                    sqlCommand.Parameters.AddWithValue("@BasicPay", emp.BasicPay);
+                    sqlCommand.Parameters.AddWithValue("@startdate", emp.StartDate);
+                    sqlCommand.Parameters.AddWithValue("@address", emp.City);
+                    sqlCommand.Parameters.AddWithValue("@PhoneNumber", emp.Contact);
+                    sqlCommand.Parameters.AddWithValue("@Deduction", emp.Deductions);
+
+
+                    int result = sqlCommand.ExecuteNonQuery();
+                    if (result == 1)
+                        Console.WriteLine("employee details are updated...");
+                    else
+                        Console.WriteLine("details are not updated!");
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
     }
 }
