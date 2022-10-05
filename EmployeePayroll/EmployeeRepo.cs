@@ -108,7 +108,7 @@ namespace EmployeePayroll
             EmployeePayroll emp = new EmployeePayroll();
             emp.EmployeeName = "john";
             emp.BasicPay = 300000;
-            emp.StartDate = "2022-05-01";
+            DateTime dateTime = Convert.ToDateTime(2022 - 05 - 01);
             emp.City = "bangalore";
             emp.Contact = "9876543210";
             emp.Deductions = 5000;
