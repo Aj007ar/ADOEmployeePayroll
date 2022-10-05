@@ -69,7 +69,7 @@ insert into TaxDetails values (6,7.8,0.09);
 
 create procedure GetCompleteDetails
 as
-select employeedetails.EmployeeId,Gender,EmployeeName,Contact,City,States,Zip,BasicPay,StartDate,Deductions,TaxPercent,(BasicPay - Deductions) * TaxPercent as Taxpaid, (BasicPay - Deductions - (BasicPay - Deductions) * TaxPercent) as NetPay from tblEmployeePayroll,tblEmployeeDetails,tblTaxDetails where tblEmployeeDetails.EmployeeId = tblEmployeePayroll.EmployeeId and tblEmployeeDetails.EmployeeId = tblTaxDetails.EmployeeId;
+select employeedetails.EmployeeId,Gender,EmployeeName,Contact,City,States,Zip,BasicPay,StartDate,Deductions,TaxPercent,(BasicPay - Deductions) * TaxPercent as Taxpaid, (BasicPay - Deductions - (BasicPay - Deductions) * TaxPercent) as NetPay from EmployeePayroll,EmployeeDetails,TaxDetails where EmployeeDetails.EmployeeId = EmployeePayroll.EmployeeId and EmployeeDetails.EmployeeId = TaxDetails.EmployeeId;
 
 exec GetCompleteDetails;
 
@@ -80,7 +80,7 @@ insert into EmployeePayroll values (@name, @basicpay, @startdate, @gender)
 declare @id int
 select @id = SCOPE_IDENTITY()
 insert into EmployeeDetails values (@id,@contact,@city,@state,@zip)
-insert into tblTaxDetails values (@id,@deductions,@taxpercent)
+insert into TaxDetails values (@id,@deductions,@taxpercent)
 
 exec AddEmployee 'Xyz','M','9887766550','someCity','someState','123456','2022-09-01',1000,100,0.01
 
