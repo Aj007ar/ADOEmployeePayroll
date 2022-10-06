@@ -7,7 +7,7 @@
         public static void display()
         {
             Console.WriteLine("Welcome to employee Payroll");
-            Console.WriteLine("1.Get all details\n2.Add employee details\n3.update employee details");
+            Console.WriteLine("1.Get all details\n2.Add employee details\n3.update employee details\n4.Get employee details by date");
             Console.WriteLine("enter your choice");
             int choice = Convert.ToInt32(Console.ReadLine());
             EmployeeRepo repo = new EmployeeRepo();
@@ -23,6 +23,10 @@
                     break;
                 case 3:
                     repo.UpdateEmployee();
+                    display();
+                    break;
+                case 4:
+                    repo.GetEmployeeDetailsByDate();
                     display();
                     break;
             }

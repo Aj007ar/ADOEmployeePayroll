@@ -144,5 +144,66 @@ namespace EmployeePayroll
                 connection.Close();
             }
         }
+        static void readDataRows(SqlDataReader dr, EmployeePayroll employeePayroll)
+        {
+            if (dr.HasRows)
+            {
+                while (dr.Read())
+                {
+                    employeePayroll.EmployeeName = dr.GetString(1);
+                    employeePayroll.BasicPay = dr.GetDouble(2);
+                    employeePayroll.StartDate = dr.GetDateTime(3);
+                    employeePayroll.Gender = dr.GetString(4);
+                    employeePayroll.Contact = dr.GetString(5);
+                    employeePayroll.City = dr.GetString(6);
+                    employeePayroll.Deductions = dr.GetDouble(8);
+                    employeePayroll.TaxPercent = dr.GetDouble(9);
+
+                    //Display retrieved record
+                    Console.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", employeePayroll.EmployeeName, employeePayroll.BasicPay, employeePayroll.StartDate, employeePayroll.Gender,employeePayroll.Contact,employeePayroll.City,employeePayroll.Deductions,employeePayroll.TaxPercent);
+                    Console.WriteLine("\n");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No data found!");
+            }
+
+        }
+
+        public void GetEmployeeDetailsByDate()
+        {
+            EmployeePayroll employee = new EmployeePayroll();
+            DateTime startDate = new DateTime(2015, 01, 02);
+            DateTime endDate = new DateTime(2020, 04, 15);
+            try
+            {
+                //establish connection
+                using (connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    SqlCommand sqlCommand = new SqlCommand("spGetDataByDateRange", connection);
+                    //stored procedure
+                    sqlCommand.CommandType = CommandType.StoredProcedure;
+                    //pass parameters
+                    sqlCommand.Parameters.AddWithValue("@StartDate", startDate);
+                    sqlCommand.Parameters.AddWithValue("@EndDate", endDate);
+                    SqlDataReader reader = sqlCommand.ExecuteReader();
+
+                    //read all rows & display data
+                    readDataRows(reader, employee);
+                    reader.Close();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            finally
+            {
+                //close connection
+                connection.Close();
+            }
+        }
     }
 }
