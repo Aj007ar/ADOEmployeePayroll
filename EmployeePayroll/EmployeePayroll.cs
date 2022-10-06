@@ -9,16 +9,19 @@ namespace EmployeePayroll
     public class EmployeePayroll
     {
         //entity
-        public int EmployeeId { get; set; }
-        public string EmployeeName { get; set; }
-        public string Contact { get; set; }
-        public string City { get; set; }
+        public int employeeId { get; set; }
+        public string employeeName { get; set; }
+        public string phoneNumber { get; set; }
+        public string address { get; set; }
+        public string department { get; set; }
         public string Gender { get; set; }
-        public double BasicPay { get; set; }
-        public double Deductions { get; set; }
-        public double TaxPercent { get; set; }
-        public string Zip { get; set; }
-        public DateTime StartDate { get; set; }
-        public string States { get; set; }
+        public decimal basicPay { get; set; }
+        public decimal deductions { get; set; }
+        public decimal taxablePay { get; set; }
+        public decimal tax { get; set; }
+        public decimal netPay { get; set; }
+        public DateTime startDate { get; set; }
+        public string city { get; set; }
+        public string country { get; set; }
     }
 }

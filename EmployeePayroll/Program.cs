@@ -1,44 +1,21 @@
-﻿namespace EmployeePayroll
+﻿using System.Net.Http.Headers;
+
+namespace EmployeePayroll
 {
     internal class Program
     {
-        private static EmployeePayroll employee;
 
-        public static void display()
-        {
-            Console.WriteLine("Welcome to employee Payroll");
-            Console.WriteLine("1.Get all details\n2.Add employee details\n3.update employee details\n4.Get employee details by date\n5.Using Database Function");
-            Console.WriteLine("enter your choice");
-            int choice = Convert.ToInt32(Console.ReadLine());
-            EmployeeRepo repo = new EmployeeRepo();
-            switch (choice)
-            {
-                
-                case 1:repo.GetAllEmployee();
-                    display();
-                    break;
-                case 2:
-                    repo.AddEmployee(employee);
-                    display();
-                    break;
-                case 3:
-                    repo.UpdateEmployee();
-                    display();
-                    break;
-                case 4:
-                    repo.GetEmployeeDetailsByDate();
-                    display();
-                    break;
-                case 5:
-                    repo.UsingDatabaseFunction();
-                    display();
-                    break;
-            }
-        }
         static void Main(string[] args)
         {
-            display();
-            
+            EmployeeRepo repo = new EmployeeRepo();
+            repo.GetAllEmployee(@"SELECT * FROM Payroll;");
+            repo.UpdateEmployee();
+            repo.GetEmployeeDetailsByDate();
+            //repo.UsingDatabaseFunction();
+            Payroll payroll = new Payroll();
+            EmployeePayroll employeePayroll = new EmployeePayroll();
+            Department department = new Department();
+            repo.AddEmployeeToPayroll(payroll, employeePayroll, department);
         }
     }
 }

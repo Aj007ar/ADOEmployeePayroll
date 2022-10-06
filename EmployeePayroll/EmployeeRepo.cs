@@ -10,123 +10,73 @@ namespace EmployeePayroll
 {
     public class EmployeeRepo
     {
-        public static string connectionString = @"Data Source=LAPTOP-3C6DDPAG;Initial Catalog=PayrollService;Integrated Security=True";
+        public static string connectionString = @"Data Source=LAPTOP-3C6DDPAG;Initial Catalog=Employee_payroll;Integrated Security=True";
         SqlConnection connection = null;
 
-        public void GetAllEmployee()
+        public void GetAllEmployee(string q)
         {
 
             try
             {
-                EmployeePayroll employeePayroll = new EmployeePayroll();
+                Payroll Payroll = new Payroll();
                 using (connection = new SqlConnection(connectionString))
                 {
-                    string query = @"select * from EmployeePayroll;";
+                    string query = q;
 
                     //define SqlCommand Object
                     SqlCommand cmd = new SqlCommand(query, connection);
                     //establish connection
                     connection.Open();
                     Console.WriteLine("connected");
-                    SqlDataReader dataReader = cmd.ExecuteReader();
+                    SqlDataReader dr = cmd.ExecuteReader();
+                    readDataRows(dr, Payroll);
 
-                    if (dataReader.HasRows)
-                    {
-                        while (dataReader.Read())
-                        {
-                            employeePayroll.EmployeeId = dataReader.GetInt32(0);
-                            employeePayroll.EmployeeName = dataReader.GetString(1);
-                            employeePayroll.BasicPay = dataReader.GetDouble(2);
-                            employeePayroll.StartDate = dataReader.GetDateTime(3);
-                            employeePayroll.Gender = dataReader.GetString(4);
-
-                            //Display retrieved record
-                            Console.WriteLine("{0},{1},{2},{3},{4}",employeePayroll.EmployeeId, employeePayroll.EmployeeName, employeePayroll.BasicPay, employeePayroll.StartDate, employeePayroll.Gender);
-                            Console.WriteLine("\n");
-                        };
-                    }
-                    else
-                    {
-                        Console.WriteLine("No data found!");
-                    }
-                    //close connection
-                    dataReader.Close();
-                    connection.Close();
+                    dr.Close();
                 }
             }
             catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
-        }
-
-        public bool AddEmployee(EmployeePayroll employee)
-        {
-            try
-            {
-                using (this.connection)
-                {
-
-                    SqlCommand storedProcedure = new SqlCommand("Addmplopyee", this.connection);
-                    storedProcedure.CommandType = CommandType.StoredProcedure;
-
-
-                    storedProcedure.Parameters.AddWithValue("@name", employee.EmployeeName);
-                    storedProcedure.Parameters.AddWithValue("@basicpay", employee.BasicPay);
-                    storedProcedure.Parameters.AddWithValue("@startdate", employee.StartDate);
-                    storedProcedure.Parameters.AddWithValue("@gender", employee.Gender);
-                    storedProcedure.Parameters.AddWithValue("@contact", employee.Contact);
-                    storedProcedure.Parameters.AddWithValue("@city", employee.City);
-                    storedProcedure.Parameters.AddWithValue("@state", employee.States);
-                    storedProcedure.Parameters.AddWithValue("@zip", employee.Zip);
-                    storedProcedure.Parameters.AddWithValue("@deductions", employee.Deductions);
-                    storedProcedure.Parameters.AddWithValue("@taxpercent", employee.TaxPercent);
-
-                    connection.Open();
-                    var result = storedProcedure.ExecuteNonQuery();
-                    connection.Close();
-
-                    if (result != 0)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
             finally
             {
+                //close connection
                 connection.Close();
             }
         }
         public int UpdateEmployee()
         {
             EmployeePayroll emp = new EmployeePayroll();
-            emp.EmployeeName = "john";
-            emp.BasicPay = 300000;
-            DateTime dateTime = Convert.ToDateTime(2022 - 05 - 01);
-            emp.City = "bangalore";
-            emp.Contact = "9876543210";
-            emp.Deductions = 5000;
+            emp.employeeName = "john";
+            emp.basicPay = 300000;
+            emp.department = "IT";
+            emp.address = "bangalore";
+            emp.phoneNumber = "9876543210";
+            emp.deductions = 5000;
+            emp.taxablePay = 15000;
+            emp.tax = 5000;
+            emp.netPay = 275000;
             try
             {
+                //establish connection
                 using (connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
-                    SqlCommand sqlCommand = new SqlCommand("GetCompleteDetails", connection);
+                    SqlCommand sqlCommand = new SqlCommand("spUpdateEmp", connection);
+                    //trigger stored procedure
                     sqlCommand.CommandType = CommandType.StoredProcedure;
-                    sqlCommand.Parameters.AddWithValue("@Name", emp.EmployeeName);
-                    sqlCommand.Parameters.AddWithValue("@BasicPay", emp.BasicPay);
-                    sqlCommand.Parameters.AddWithValue("@startdate", emp.StartDate);
-                    sqlCommand.Parameters.AddWithValue("@address", emp.City);
-                    sqlCommand.Parameters.AddWithValue("@PhoneNumber", emp.Contact);
-                    sqlCommand.Parameters.AddWithValue("@Deduction", emp.Deductions);
+                    //pass parameters
+                    sqlCommand.Parameters.AddWithValue("@Name", emp.employeeName);
+                    sqlCommand.Parameters.AddWithValue("@BasicPay", emp.basicPay);
+                    sqlCommand.Parameters.AddWithValue("@department", emp.department);
+                    sqlCommand.Parameters.AddWithValue("@address", emp.address);
+                    sqlCommand.Parameters.AddWithValue("@PhoneNumber", emp.phoneNumber);
+                    sqlCommand.Parameters.AddWithValue("@Deduction", emp.deductions);
+                    sqlCommand.Parameters.AddWithValue("@TaxablePay", emp.taxablePay);
+                    sqlCommand.Parameters.AddWithValue("@Tax", emp.tax);
+                    sqlCommand.Parameters.AddWithValue("@NetPay", emp.netPay);
 
-
+                    //check if there is a row
                     int result = sqlCommand.ExecuteNonQuery();
                     if (result == 1)
                         Console.WriteLine("employee details are updated...");
@@ -141,6 +91,7 @@ namespace EmployeePayroll
             }
             finally
             {
+                //close connection
                 connection.Close();
             }
         }
@@ -150,17 +101,48 @@ namespace EmployeePayroll
             {
                 while (dr.Read())
                 {
-                    employeePayroll.EmployeeName = dr.GetString(1);
-                    employeePayroll.BasicPay = dr.GetDouble(2);
-                    employeePayroll.StartDate = dr.GetDateTime(3);
+                    employeePayroll.employeeId = dr.GetInt32(0);
+                    employeePayroll.employeeName = dr.GetString(1);
+                    employeePayroll.basicPay = dr.GetDecimal(2);
+                    employeePayroll.startDate = dr.GetDateTime(3);
                     employeePayroll.Gender = dr.GetString(4);
-                    employeePayroll.Contact = dr.GetString(5);
-                    employeePayroll.City = dr.GetString(6);
-                    employeePayroll.Deductions = dr.GetDouble(8);
-                    employeePayroll.TaxPercent = dr.GetDouble(9);
+                    employeePayroll.phoneNumber = dr.GetString(5);
+                    employeePayroll.address = dr.GetString(6);
+                    employeePayroll.department = dr.GetString(7);
+                    employeePayroll.deductions = dr.GetDecimal(8);
+                    employeePayroll.taxablePay = dr.GetDecimal(9);
+                    employeePayroll.tax = dr.GetDecimal(10);
+                    employeePayroll.netPay = dr.GetDecimal(11);
 
                     //Display retrieved record
-                    Console.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}", employeePayroll.EmployeeName, employeePayroll.BasicPay, employeePayroll.StartDate, employeePayroll.Gender,employeePayroll.Contact,employeePayroll.City,employeePayroll.Deductions,employeePayroll.TaxPercent);
+                    Console.WriteLine("{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}", employeePayroll.employeeId, employeePayroll.employeeName, employeePayroll.phoneNumber, employeePayroll.address, employeePayroll.department, employeePayroll.Gender, employeePayroll.basicPay, employeePayroll.deductions, employeePayroll.taxablePay, employeePayroll.tax, employeePayroll.netPay);
+                    Console.WriteLine("\n");
+                }
+            }
+            else
+            {
+                Console.WriteLine("No data found!");
+            }
+
+        }
+
+        //method to read all rows
+        static void readDataRows(SqlDataReader dr, Payroll payroll)
+        {
+            if (dr.HasRows)
+            {
+                while (dr.Read())
+                {
+                    payroll.payrollId = dr.GetString(0);
+                    payroll.basicPay = dr.GetDecimal(1);
+                    payroll.deductions = dr.GetDecimal(2);
+                    payroll.taxablePay = dr.GetDecimal(3);
+                    payroll.tax = dr.GetDecimal(4);
+                    payroll.netPay = dr.GetDecimal(5);
+                    payroll.employeeId = dr.GetInt32(6);
+
+                    //Display retrieved record
+                    Console.WriteLine("{0},{1},{2},{3},{4},{5},{6}", payroll.employeeId, payroll.basicPay, payroll.deductions, payroll.taxablePay, payroll.tax, payroll.netPay, payroll.employeeId);
                     Console.WriteLine("\n");
                 }
             }
@@ -205,8 +187,11 @@ namespace EmployeePayroll
                 connection.Close();
             }
         }
-        public void UsingDatabaseFunction()
+
+
+        public void UsingDatabaseFunction(string q)
         {
+
             try
             {
                 DataBaseFunction df = new DataBaseFunction();
@@ -215,8 +200,8 @@ namespace EmployeePayroll
                 string queryDb = @"SELECT gender,COUNT(basic_pay) AS TotalCount,SUM(basic_pay) AS TotalSum, 
                                    AVG(basic_pay) AS AverageValue, 
                                    MIN(basic_pay) AS MinValue, MAX(basic_pay) AS MaxValue
-                                   FROM payroll 
-                                   WHERE Gender = 'F' GROUP BY Gender;";
+                                   FROM emp_payroll 
+                                   WHERE Gender =  GROUP BY Gender;";
 
                 //define SqlCommand Object
                 SqlCommand cmd = new SqlCommand(queryDb, connection);
@@ -252,6 +237,54 @@ namespace EmployeePayroll
                 connection.Close();
             }
             Console.WriteLine();
+        }
+
+
+        public void AddEmployeeToPayroll(Payroll payroll, EmployeePayroll employeePayroll, Department depart)
+        {
+
+            try
+            {
+                using (connection = new SqlConnection(connectionString))
+                {
+                    SqlCommand command = new SqlCommand("spAddEmpPayrollDetails", connection);
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@emp_id", employeePayroll.employeeId = 6);
+                    command.Parameters.AddWithValue("@employee_name", employeePayroll.employeeName = "james");
+                    command.Parameters.AddWithValue("@phone_no", employeePayroll.phoneNumber = "1234560");
+                    command.Parameters.AddWithValue("@address", employeePayroll.address = "up");
+                    command.Parameters.AddWithValue("@gender", employeePayroll.Gender = "M");
+                    command.Parameters.AddWithValue("@payroll_Id", payroll.payrollId = "#2945");
+                    command.Parameters.AddWithValue("@basic_pay", payroll.basicPay = 100000);
+                    command.Parameters.AddWithValue("@deduction", payroll.deductions = 20000);
+                    command.Parameters.AddWithValue("@income_tax", payroll.tax = 5000);
+                    command.Parameters.AddWithValue("@taxable_pay", payroll.taxablePay = 5000);
+                    command.Parameters.AddWithValue("@net_pay", payroll.netPay = 70000);
+                    command.Parameters.AddWithValue("@department_Id", depart.departmentId = 505);
+                    command.Parameters.AddWithValue("@departmentName", depart.departmentName = "Fullstack");
+
+                    connection.Open();
+                    int result = command.ExecuteNonQuery();
+                    if (result != 0)
+                    {
+                        Console.WriteLine("added successfully...");
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("adding data failed...");
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
         }
     }
 }
